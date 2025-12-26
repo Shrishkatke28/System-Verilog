@@ -1,0 +1,76 @@
+// Code your testbench here
+// or browse Examples
+class frame;
+  rand bit[7:0]a;
+  rand bit[7:0]b;
+  rand bit   cin;
+  
+  task display(string name);
+    $display(["[%s] a:%b b:%b scin:%b",a,b,cin);
+  endtask
+  
+  constraint{
+    
+  };
+  
+  
+endclass
+
+
+class generator;
+  frame frm;
+  mailbox mbox;
+  
+  function new(mailbox mbox);
+    this.mbox=mbox;
+  endfunction
+  
+  task main;
+    retpeat(10)begin
+      frm=new();
+      
+      frm.randomize();
+      mbox.put(frm);
+      
+    end
+    
+  endtask
+  
+  
+endclass
+
+  class driver;
+    mailbox mbox;
+    frame frm;
+    virtual intf intf1;
+    
+    function new(mailbox mbox,intf intf1);
+      this.mbox=mbox;
+      this.intf1=intf1;
+    endfunction
+    
+    task main;
+      repeat(10)begin
+        frm=new();
+        mbox.get(frm);
+        frm.display("DRV")
+        
+        
+      end
+      
+    endtask
+    
+  endclass
+  
+
+interface intf;
+   bit[7:0]a;
+   bit[7:0]b;
+   bit   cin;
+   bit     f;
+    
+  modport driver(output a,b,cin);
+  modport monitor(input a,b,cin,f);
+  
+  
+endinterface
